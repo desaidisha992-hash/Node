@@ -34,6 +34,38 @@ app.get("/card", async (req, res)=>{
     res.render("card",{ data: allusers });
 });
 
+// delete
+app.get("/delete/:id", async (req, res)=>{
+    await userModel.findOneAndDelete({_id: req.params.id});
+
+    res.redirect("/card");
+})
+
+// edit card
+// 1. show all data --> show filled form
+app.get("/show/:id", async (req, res)=>{
+ let user = await userModel.findOne({_id: req.params.id});
+
+ res.render("edit",{user});
+});
+
+// 2. set new data --> edit form and submit
+app.post("/edit/:id",async (req, res)=>{
+    let {fname, uname, email, img} = req.body;
+
+   await userModel.findOneAndUpdate(
+        {_id: req.params.id},
+        {
+            fullname: fname,
+            username: uname,
+            email,
+            image: img,
+        },
+        {new: true});
+        
+        res.redirect("/card");
+});
+
 app.listen(3000, ()=>{
     console.log("server is running....")
 });

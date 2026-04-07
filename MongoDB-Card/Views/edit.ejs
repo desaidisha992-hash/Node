@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Homepage </title>
+    <title>Edit Card Form </title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
    
 
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-         <h1 class="text-3xl font-semibold text-center my-20">Card Generator</h1>
-      <form action="/create" method="post">
+         <h1 class="text-3xl font-semibold text-center my-20">Edit Your Card</h1>
+      <form action="/edit/<%= user._id %>" method="post">
         <div class="mb-4">
           <label
             for="fullname"
@@ -22,6 +22,7 @@
             type="text"
             id="fname"
             name="fname"
+            value="<%= user.fullname %>"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
             placeholder="joe Doe"
             required
@@ -38,6 +39,7 @@
             type="text"
             id="uname"
             name="uname"
+            value="<%= user.username %>"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
             placeholder="Joe125"
             required
@@ -52,6 +54,7 @@
             type="email"
             id="email"
             name="email"
+            value="<%= user.email %>"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
             placeholder="you@example.com"
             required
@@ -68,6 +71,7 @@
             type="text"
             id="img"
             name="img"
+            value="<%= user.image %>"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
             placeholder="https://abcafkjadfja.com"
             required
@@ -78,7 +82,7 @@
           type="submit"
           class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
         >
-          Create Card
+          Edit Card
         </button>
       </form>
 
