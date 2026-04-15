@@ -12,7 +12,7 @@ let userSchema = mongoose.Schema({
 
 // jwt token
 userSchema.methods.generateAuthToken = function(){
-    let token = jwt.sign({_id: this._id}, process.env.JWT_SECRET);
+    let token = jwt.sign({_id: this._id}, process.env.JWT_SECRET,{expiresIn: "7d"});
     return token;
 }; // this._id --> database user's _id
 //bcrypt
