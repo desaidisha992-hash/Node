@@ -1,7 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, Phone, MapPin, Calendar } from "lucide-react";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const Profile = () => {
+const [data, setData] = useState("");
+
+const navigate= useNavigate();
+
+useEffect (()=>{
+  const FetchData = async ()=>{
+    try {
+      let response = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/profile`,{
+        headers:{
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        }
+      }) 
+
+      setData(response?.data?.user);
+    } catch (error) {
+      console.log(error.response)
+    }
+  };
+
+  FetchData();
+}, []);
+
+const logout = async()=>{
+ try {
+   await axios.get(`${import.meta.env.VITE_BASE_URL}/user/logout`,{
+        headers:{
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+      navigate("/login")
+    ) 
+ } catch (error) {
+  console.log(error.response)
+ }
+}
+  
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-100 to-gray-200 flex items-center justify-center p-4">
 
@@ -18,7 +56,7 @@ const Profile = () => {
           {/* Avatar */}
           <div className="flex justify-center -mt-20">
             <img
-              src="https://via.placeholder.com/150"
+              src="https://i.pinimg.com/1200x/4e/54/b6/4e54b69abfd1858ed6a26f1131083169.jpg"
               alt="profile"
               className="w-36 h-36 rounded-full border-4 border-white shadow-xl object-cover hover:scale-105 transition"
             />
@@ -26,7 +64,7 @@ const Profile = () => {
 
           {/* Name */}
           <div className="text-center mt-4">
-            <h2 className="text-3xl font-bold text-gray-800">John Doe</h2>
+            <h2 className="text-3xl font-bold text-gray-800">{data?.username}</h2>
             <p className="text-blue-500 font-medium">Frontend Developer</p>
           </div>
 
@@ -37,7 +75,7 @@ const Profile = () => {
               <Mail className="text-blue-500" />
               <div>
                 <p className="text-sm text-gray-500">Email</p>
-                <p className="font-medium text-gray-800">john@example.com</p>
+                <p className="font-medium text-gray-800">{data?.email}</p>
               </div>
             </div>
 
@@ -73,7 +111,7 @@ const Profile = () => {
               Edit Profile
             </button>
 
-            <button className="border border-gray-300 px-6 py-2 rounded-xl hover:bg-gray-100 hover:scale-105 transition">
+            <button className="border border-gray-300 px-6 py-2 rounded-xl hover:bg-gray-100 hover:scale-105 transition" onClick={logout}>
               Logout
             </button>
           </div>

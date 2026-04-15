@@ -1,7 +1,40 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [error, setError] = useState("");
+
+const navigate = useNavigate();
+
+ // API Fetch --> Data Send
+ const SubmitForm = async ()=>{
+   console.log("form submitted !!!");
+
+   const userdata = {email: email, password: password}
+
+   try {
+     let response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/login`, userdata);
+
+     if(response.status === 200){
+      const data = response.data;
+
+      localStorage.setItem("token", data.token);
+      navigate("/profile")
+     }
+     setEmail("")
+     setPassword("")
+   } catch (e) {
+    let error = e.response?.data?.error;
+    setError(error)
+   }
+
+  
+
+ }
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-r from-blue-100 to-indigo-200">
       
@@ -11,17 +44,33 @@ const Login = () => {
           Welcome Back 👋
         </h2>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={(e)=> e.preventDefault(SubmitForm())}>
+
+           {error &&  <div >
+            {error.map((val,index)=>{
+              return <p key={index} className="bg-red-100 rounded-xl p-2 w-full text-red-600 font-medium mb-2 text-center">{val.msg}</p>
+            })}
+            </div>}
           
           <input
             type="email"
             placeholder="Email"
+            name="email"
+            value={email}
+            onChange={(e)=>{
+              setEmail(e.target.value)
+            }}
             className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-400 outline-none"
           />
 
           <input
             type="password"
             placeholder="Password"
+            name="password"
+            value={password}
+            onChange={(e)=>{
+              setPassword(e.target.value);
+            }}
             className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-400 outline-none"
           />
 

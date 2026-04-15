@@ -60,4 +60,9 @@ module.exports.loginUser = async (req, res)=>{
 
 module.exports.profile = (req, res)=>{
     res.status(200).json({ user: req.user});
+};
+
+module.exports.logout = (req,res)=>{
+    res.clearCookie("token")
+    res.status(200).json({message: "User Logout SuccessFully !!!"})
 }

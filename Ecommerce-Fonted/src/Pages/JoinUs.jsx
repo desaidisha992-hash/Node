@@ -1,29 +1,43 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const JoinUs = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-    const userdata = {username: username, email: email, password: password}
+    const navigate = useNavigate();
+    
+   
 
     const submitForm = async()=>{
         console.log("Form Submitted !!!");
+         const userdata = {username: username, email: email, password: password}
         console.log(userdata);
 
-        let response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, userdata);
+        
 
-        if(response.status === 200){
+       try {
+        let response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, userdata);
+         if(response.status === 200){
             const data = response.data;
 
             localStorage.setItem("token", data.token);
-        }
 
-        setUsername("")
+            navigate("/login");
+        }
+         setUsername("")
         setEmail("")
         setPassword("")
+
+       } catch (err) {
+        // console.log(err.response?.data?.error);
+        let Err = err.response?.data?.error
+         console.log(Err);
+         setError(Err);
+       }       
     };
 
   return (
@@ -38,7 +52,13 @@ const JoinUs = () => {
         <form className="space-y-4" onSubmit={(e) =>{
             e.preventDefault(submitForm())
         }}>
-          
+           
+          {error &&  <div >
+            {error.map((val,index)=>{
+              return <p key={index} className="bg-red-100 rounded-xl p-2 w-full text-red-600 font-medium mb-2 text-center">{val.msg}</p>
+            })}
+            </div>}
+           
           <input
             type="text"
             name="username"
