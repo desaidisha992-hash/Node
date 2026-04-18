@@ -4,6 +4,7 @@ import Home from './Pages/Home'
 import Login from './Pages/Login'
 import JoinUs from './Pages/JoinUs'
 import Profile from './Pages/Profile'
+import EditProfile from './Pages/EditProfile'
 
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
     <Route path='/login' element={<Login/>}/>
     <Route path='/joinus' element={<JoinUs/>}/>
     <Route path='/profile' element={<Profile/>}/>
+    <Route path='/editprofile' element={<EditProfile/>}/> 
     </Routes>
    
    

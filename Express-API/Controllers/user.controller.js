@@ -12,7 +12,7 @@ module.exports.registerUser = async(req, res)=>{
         return res.status(400).json({error: error.array()});
     }
 
-    const{ username, email, password } = req.body;
+    const{ username, email, password, role } = req.body;
 
     // Check user Alredy Registed or not
     let isExist = await userModel.findOne({ email: email});
@@ -22,7 +22,7 @@ module.exports.registerUser = async(req, res)=>{
 
     const hashPassword = await userModel.hashPassword(password);
 
-    const user = await userService.createUser({username, email, password: hashPassword,});
+    const user = await userService.createUser({username, email, password: hashPassword, role});
 
     let token = await user.generateAuthToken();
 
@@ -66,3 +66,16 @@ module.exports.logout = (req,res)=>{
     res.clearCookie("token")
     res.status(200).json({message: "User Logout SuccessFully !!!"})
 }
+
+module.exports.updateUser = async (req, res) => {
+  const userId = req.user.id;
+  console.log(userId);
+
+  const {username, email} = req.body;  
+
+  const updateUser = await userService.updateUser({ userId, username, email });
+
+  res.status(200).json({
+    message: "User Data Updated Successfully",updateUser
+  });
+};

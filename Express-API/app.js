@@ -6,6 +6,7 @@ const db = require("./Config/db");
 const cookieParser = require("cookie-parser");
 // Route
 const userRouter = require("./Routes/web/v1/user.route");
+const adminRouter= require("./Routes/web/v1/admin.route");
 
 const app = express();
 app .use (express.json());
@@ -27,6 +28,7 @@ app.get("/", (req,res)=>{
     res.status(401).json({message:"Access Denined !!!"});
 });
 app.use("/user", userRouter); // --> loacalhost:3000/user/register
+app.use("/admin", adminRouter); // --> url/admin/all/user
 
 app.listen(PORT, ()=>{
     console.log(`Server Is Running On PORT ${PORT}`)
