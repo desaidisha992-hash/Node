@@ -7,7 +7,7 @@ let userSchema = mongoose.Schema({
      username: {type: String, minlength: 4, unique: true, required: true,},
      email: {type: String, unique: true, required: true, lowercase: true,},
      password: {type: String, required: true, select: false,}, // find query -- select: false --> response ma add na thay 
-     role: {type: String, enum: ["user", "admin",], default: "user"}
+     role: {type: String, enum: ["user", "admin", "manager"], default: "user"}
 });
 
 // jwt token
