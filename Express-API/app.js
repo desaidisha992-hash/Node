@@ -8,6 +8,8 @@ const cookieParser = require("cookie-parser");
 const userRouter = require("./Routes/web/v1/user.route");
 const adminRouter= require("./Routes/web/v1/admin.route");
 const productRouter = require("./Routes/web/v1/product.route");
+const chatRouter = require("./Routes/web/v1/chat.route");
+const cartRouter = require("./Routes/web/v1/cart.route");
 
 
 const app = express();
@@ -32,7 +34,8 @@ app.get("/", (req,res)=>{
 app.use("/user", userRouter); // --> loacalhost:3000/user/register
 app.use("/admin", adminRouter); // --> url/admin/all/user
 app.use("/product", productRouter);
-
+app.use("/bot", chatRouter);
+app.use("/cart", cartRouter);
 
 app.listen(PORT, ()=>{
     console.log(`Server Is Running On PORT ${PORT}`)
