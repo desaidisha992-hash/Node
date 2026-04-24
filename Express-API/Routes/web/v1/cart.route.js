@@ -8,10 +8,11 @@ router.post("/add", userMiddleware.authUser, cartComtroller.AddToCart);
 
 
 // get all items
+router.get("/all", userMiddleware.authUser,cartComtroller.GetCart);
 
 
-// remove items
-
+// remove single items from cart
+router.delete("/product/:id", userMiddleware.authUser,cartComtroller.RemoveItem)
 
 
 
