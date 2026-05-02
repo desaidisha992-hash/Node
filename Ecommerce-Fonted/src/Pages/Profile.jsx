@@ -1,143 +1,227 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Mail, Phone, MapPin, Calendar } from "lucide-react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import { DataContext } from "../Context/UserContext";
+import React, { useState, useEffect } from 'react';
+import { User, Package, MapPin, CreditCard, ShoppingBag, ChevronRight, Clock, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { orderService } from '../services/api';
 
 const Profile = () => {
-  const [data, setData] = useState("");
-  const [error, setError] = useState("");
-
-  const {centerData} = useContext(DataContext)
-  console.log("user data", centerData);
-
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { cart, cartTotal } = useCart();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('orders');
 
   useEffect(() => {
-    const FetchData = async () => {
+    const fetchOrders = async () => {
       try {
-        let response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/user/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        );
-        setData(response?.data?.user);
-      } catch (error) {
-        console.log(error.response);
-        setError(error.response?.data?.message);
+        const response = await orderService.getOrderHistory();
+        setOrders(response.data.order || []);
+      } catch (err) {
+        console.error("Failed to fetch orders", err);
+      } finally {
+        setLoading(false);
       }
     };
-    FetchData();
-  }, []);
+    if (user) fetchOrders();
+  }, [user]);
 
-  const logout = async () => {
-    try {
-      await axios.get(`${import.meta.env.VITE_BASE_URL}/user/logout`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-
-      localStorage.setItem("token", " ");
-      navigate("/login");
-    } catch (error) {
-      console.log(error.response);
-    }
-  };
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center bg-luxury-gold-light">
+      <div className="text-center p-12 bg-white border border-luxury-gold/20 shadow-2xl">
+        <h2 className="text-3xl font-serif text-luxury-navy mb-4 italic">Private Boutique</h2>
+        <p className="text-slate-500 mb-8 font-light uppercase tracking-widest text-[10px]">Please sign in to access your profile</p>
+        <a href="/login" className="btn-premium">Sign In</a>
+      </div>
+    </div>
+  );
 
   return (
-    <>
-      {error && (
-        <div className="w-full h-screen flex justify-center items-center text-9xl font-bold text-red-600">
-          Access Denided !!
-        </div>
-      )}
-
-      {/* user profile */}
-      {data.username && (
-        <div className="min-h-screen bg-linear-to-br from-blue-100 to-gray-200 flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl bg-white/80 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-blue-200">
-            {/* Cover */}
-            <div className="h-48 bg-linear-to-br from-blue-500 via-blue-400 to-indigo-500 relative">
-              <div className="absolute inset-0 bg-black/10"></div>
-            </div>
-
-            {/* Profile Section */}
-            <div className="px-6 pb-8 relative">
-              {/* Avatar */}
-              <div className="flex justify-center -mt-20">
-                <img
-                  src="https://i.pinimg.com/1200x/4e/54/b6/4e54b69abfd1858ed6a26f1131083169.jpg"
-                  alt="profile"
-                  className="w-36 h-36 rounded-full border-4 border-white shadow-xl object-cover hover:scale-105 transition"
-                />
+    <div className="bg-luxury-gold-light min-h-screen pt-20 pb-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-4">
+            <div className="bg-white p-10 shadow-2xl border border-luxury-gold/10">
+              <div className="flex flex-col items-center text-center mb-10">
+                <div className="w-24 h-24 bg-luxury-navy flex items-center justify-center rounded-none mb-6 group overflow-hidden relative">
+                  <User className="w-10 h-10 text-luxury-gold group-hover:scale-110 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-luxury-gold/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <h2 className="text-2xl font-serif text-luxury-navy mb-1 italic">{user.username}</h2>
+                <p className="text-luxury-gold text-[10px] font-bold tracking-[0.3em] uppercase">{user.role} Member</p>
               </div>
 
-              {/* Name */}
-              <div className="text-center mt-4">
-                <h2 className="text-3xl font-bold text-gray-800">
-                  {data?.username}
-                </h2>
-                <p className="text-blue-500 font-medium">Frontend Developer</p>
-              </div>
-
-              {/* Info Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-8">
-                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
-                  <Mail className="text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium text-gray-800">{data?.email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
-                  <Phone className="text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-800">+91 9876543210</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
-                  <MapPin className="text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Location</p>
-                    <p className="font-medium text-gray-800">
-                      Ahmedabad, India
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
-                  <Calendar className="text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Joined</p>
-                    <p className="font-medium text-gray-800">Jan 2024</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-                <Link to ="/editprofile" className="bg-blue-500 text-white px-6 py-2 rounded-xl shadow-md hover:bg-blue-600 hover:scale-105 transition"><button >
-                  Edit Profile
-                </button></Link>
-                
-
-                <button
-                  className="border border-gray-300 px-6 py-2 rounded-xl hover:bg-gray-100 hover:scale-105 transition text-red-500"
-                  onClick={logout}
-                >
-                  Logout
-                </button>
-              </div>
+              <nav className="space-y-4">
+                {[
+                  { id: 'orders', label: 'Order History', icon: Package },
+                  { id: 'cart', label: 'Current Bag', icon: ShoppingBag },
+                  { id: 'details', label: 'Account Details', icon: ShieldCheck },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center p-4 text-[10px] tracking-[0.2em] uppercase font-bold transition-all ${activeTab === tab.id ? 'bg-luxury-navy text-white' : 'text-slate-400 hover:text-luxury-gold hover:bg-slate-50'}`}
+                  >
+                    <tab.icon className="w-4 h-4 mr-4" />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
             </div>
           </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-8">
+            <div className="bg-white p-12 shadow-2xl border border-luxury-gold/10 min-h-150">
+              
+              {activeTab === 'orders' && (
+                <div className="animate-fade-in space-y-10">
+                  <h3 className="text-2xl font-serif text-luxury-navy italic border-b border-luxury-gold/10 pb-6">Your Past Acquisitions</h3>
+                  {loading ? (
+                    <p className="text-slate-400 italic">Curating your history...</p>
+                  ) : orders.length > 0 ? (
+                    <div className="space-y-12">
+                      {orders.map((order) => (
+                        <div key={order._id} className="border-l-2 border-luxury-gold pl-8 space-y-6">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-1">Order ID: #{order._id.slice(-8)}</p>
+                              <div className="flex items-center text-luxury-navy">
+                                <Clock className="w-3 h-3 mr-2 text-luxury-gold" />
+                                <span className="text-xs font-bold uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className={`text-[8px] font-bold tracking-[0.3em] uppercase px-3 py-1 border ${
+                                order.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-100' :
+                                order.status === 'cancel' ? 'bg-red-50 text-red-600 border-red-100' :
+                                'bg-luxury-gold/10 text-luxury-gold border-luxury-gold/20'
+                              }`}>
+                                {order.status.replace('_', ' ')}
+                              </span>
+                              {order.trackingId && (
+                                <p className="text-[8px] text-slate-400 mt-2 font-mono tracking-tighter uppercase">ID: {order.trackingId}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Tracking Progress Bar */}
+                          {order.status !== 'cancel' && (
+                            <div className="py-6">
+                              <div className="flex justify-between mb-4">
+                                {['pending', 'processing', 'shipped', 'delivered'].map((s, i) => {
+                                  const steps = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+                                  const currentIdx = steps.indexOf(order.status);
+                                  const stepIdx = steps.indexOf(s);
+                                  const isCompleted = currentIdx >= stepIdx;
+                                  const isActive = currentIdx === stepIdx;
+                                  
+                                  return (
+                                    <div key={s} className="flex flex-col items-center flex-1 relative">
+                                      <div className={`w-3 h-3 rounded-full border-2 z-10 transition-all duration-500 ${isCompleted ? 'bg-luxury-gold border-luxury-gold' : 'bg-white border-slate-200'}`}>
+                                        {isActive && <div className="w-full h-full rounded-full animate-ping bg-luxury-gold opacity-75"></div>}
+                                      </div>
+                                      <span className={`text-[7px] tracking-widest uppercase mt-3 font-bold ${isCompleted ? 'text-luxury-navy' : 'text-slate-300'}`}>{s.replace('_', ' ')}</span>
+                                      {i < 3 && (
+                                        <div className={`absolute top-1.5 left-1/2 w-full h-1p z-0 ${currentIdx > stepIdx ? 'bg-luxury-gold' : 'bg-slate-100'}`}></div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="space-y-4">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center space-x-4">
+                                <div className="w-12 h-12 bg-slate-50 overflow-hidden">
+                                  <img src={item.productId?.images?.[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800'} className="w-full h-full object-cover grayscale" alt="" />
+                                </div>
+                                <div className="grow">
+                                  <p className="text-xs font-serif text-luxury-navy italic">{item.productId?.name || 'Luxury Item'}</p>
+                                  <p className="text-[8px] tracking-widest text-slate-400 uppercase">Qty: {item.quantity}</p>
+                                </div>
+                                <span className="text-xs font-bold text-luxury-gold">₹{item.total?.toLocaleString('en-IN')}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="pt-4 border-t border-slate-50 flex justify-between items-center">
+                            <span className="text-[10px] tracking-widest uppercase font-bold text-slate-400">Total Investment</span>
+                            <span className="text-xl font-bold text-luxury-navy">${order.totalbill?.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-20 bg-slate-50 border border-dashed border-luxury-gold/20">
+                      <p className="text-slate-400 italic">No acquisitions found in your record.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'cart' && (
+                <div className="animate-fade-in space-y-10">
+                  <h3 className="text-2xl font-serif text-luxury-navy italic border-b border-luxury-gold/10 pb-6">Current Boutique Bag</h3>
+                  {cart.length > 0 ? (
+                    <div className="space-y-8">
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex items-center space-x-6 p-6 bg-slate-50/50">
+                          <img src={item.image} className="w-16 h-16 object-cover grayscale" alt="" />
+                          <div className="grow">
+                            <h4 className="font-serif text-luxury-navy italic">{item.name}</h4>
+                            <p className="text-[8px] tracking-widest text-slate-400 uppercase">Quantity: {item.quantity}</p>
+                          </div>
+                          <span className="text-luxury-gold font-bold">${(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      ))}
+                      <div className="pt-10 flex justify-between items-center border-t border-luxury-gold/10">
+                        <span className="text-xs tracking-widest uppercase font-bold text-slate-400">Total Selection</span>
+                        <span className="text-2xl font-bold text-luxury-navy">${cartTotal.toLocaleString()}</span>
+                      </div>
+                      <a href="/cart" className="w-full btn-premium py-5 block text-center">Complete Acquisition</a>
+                    </div>
+                  ) : (
+                    <div className="text-center py-20 bg-slate-50 border border-dashed border-luxury-gold/20">
+                      <p className="text-slate-400 italic">Your bag is currently empty.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'details' && (
+                <div className="animate-fade-in space-y-10">
+                  <h3 className="text-2xl font-serif text-luxury-navy italic border-b border-luxury-gold/10 pb-6">Member Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="space-y-2">
+                      <label className="block text-[8px] font-bold tracking-[0.3em] text-slate-400 uppercase">Username</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 text-luxury-navy font-bold text-xs uppercase tracking-widest">{user.username}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[8px] font-bold tracking-[0.3em] text-slate-400 uppercase">Email Address</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 text-luxury-navy font-bold text-xs uppercase tracking-widest">{user.email}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[8px] font-bold tracking-[0.3em] text-slate-400 uppercase">Member Since</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 text-luxury-navy font-bold text-xs uppercase tracking-widest">January 2026</div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[8px] font-bold tracking-[0.3em] text-slate-400 uppercase">Status</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 text-luxury-gold font-bold text-xs uppercase tracking-widest">Verified Elite</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 

@@ -1,59 +1,247 @@
-const cartModel = require("../Models/cart.model");
-const cartService = require("../Services/cart.service");
+const cartModel =
+  require("../Models/cart.model");
 
-// Add To Cart
-module.exports.AddToCart = async (req, res) => {
+const cartService =
+  require("../Services/cart.service");
+
+
+// =========================
+// ADD TO CART
+// =========================
+
+module.exports.AddToCart =
+  async (req, res) => {
+
     try {
-        const userId = req.user.id;
-        const { item } = req.body;
 
-        const Exist = await cartModel.findOne({userId});
-        const existProduct= Exist.items.map((val) =>{
-            const ids = val.productId;
-            return ids;
+      const userId =
+        req.user.id;
+
+      const { item } =
+        req.body;
+
+      // CHECK ITEM
+
+      if (
+        !item ||
+
+        !item.productId
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Product ID Required"
+
+        });
+      }
+
+      console.log(
+        "BODY => ",
+        req.body
+      );
+
+      // FIND CART
+
+      let Exist =
+        await cartModel.findOne({
+          userId
         });
 
-        existProduct.forEach((e) => {
-            if(e.equals(item.productId)){
-                return res.status(400).json({message:"Product Already Is Add Into Cart"})
-            }
+      // CREATE EMPTY CART
+
+      if (!Exist) {
+
+        Exist =
+          await cartModel.create({
+
+            userId,
+
+            items: []
+
+          });
+      }
+
+      // CHECK PRODUCT EXISTS
+
+      const existProduct =
+        Exist.items.map((val) => {
+
+          return val.productId;
+
         });
 
-        const cart = await cartService.addToCart({ userId, item });
+      let alreadyExists =
+        false;
 
-        return res.status(200).json({ message: "Add Item To Cart SuccessFully", cart });
+      existProduct.forEach((e) => {
+
+        if (
+
+          e.toString() ===
+          item.productId
+
+        ) {
+
+          alreadyExists =
+            true;
+
+        }
+
+      });
+
+      // ALREADY EXISTS
+
+      if (alreadyExists) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Product Already Added Into Cart"
+
+        });
+      }
+
+      // ADD PRODUCT
+
+      const cart =
+        await cartService.addToCart({
+
+          userId,
+
+          item
+
+        });
+
+      return res.status(200).json({
+
+        success: true,
+
+        message:
+          "Add Item To Cart Successfully",
+
+        cart
+
+      });
+
     } catch (error) {
-        return res.status(200).json({ message: error.message })
+
+      console.log(
+        "CART ERROR => ",
+        error
+      );
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          error.message
+
+      });
     }
 };
 
-// Get Cart
-module.exports.GetCart = async (req, res) => {
+
+// =========================
+// GET CART
+// =========================
+
+module.exports.GetCart =
+  async (req, res) => {
+
     try {
-        const userId = req.user.id;
 
-        let cart = await cartService.GetCart(userId);
+      const userId =
+        req.user.id;
 
-        if (!cart) {
-            return res.status(404).json("Cart Not Found !!")
-        }
+      let cart =
+        await cartService.GetCart(
+          userId
+        );
 
-        return res.status(200).json({ message: "Cart Data Fetch SuccessFully", cart });
+      if (!cart) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Cart Not Found"
+
+        });
+      }
+
+      return res.status(200).json({
+
+        success: true,
+
+        message:
+          "Cart Data Fetch Successfully",
+
+        cart
+
+      });
 
     } catch (error) {
-        return res.status(400).json({ message: error.message })
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          error.message
+
+      });
     }
-}
+};
 
-// Remove Single Item From Cart
-module.exports.RemoveItem = async (req, res) => {
+
+// =========================
+// REMOVE ITEM
+// =========================
+
+module.exports.RemoveItem =
+  async (req, res) => {
+
     try {
-        const userId = req.user.id;
-        const productId = req.params.id;
 
-        await cartService.RemoveSingleProduct({ userId, productId })
-        return res.status(200).json({ message: "Remove Item From Cart SucessFully" });
+      const userId =
+        req.user.id;
+
+      const productId =
+        req.params.id;
+
+      await cartService.RemoveSingleProduct({
+
+        userId,
+
+        productId
+
+      });
+
+      return res.status(200).json({
+
+        success: true,
+
+        message:
+          "Remove Item From Cart Successfully"
+
+      });
+
     } catch (error) {
-        return res.status(400).json({ message: error.message })
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          error.message
+
+      });
     }
 };

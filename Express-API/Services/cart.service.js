@@ -1,39 +1,115 @@
 const cartModel = require("../Models/cart.model");
 
-// add item to cart
-module.exports.addToCart = async ({ userId, item }) => {
-    let cart = await cartModel.findOne({ userId });
 
-    if (!cart) cart = new cartModel({ userId, items: [] });
+// =========================
+// ADD ITEM TO CART
+// =========================
 
-    cart.items.push(item);
-    return await cart.save();
-}
+module.exports.addToCart = async ({
+  userId,
+  item
+}) => {
 
-// get cart
-module.exports.GetCart = async (userId) => {
-    return await cartModel.findOne({ userId });
+  // FIND USER CART
+
+  let cart = await cartModel.findOne({
+    userId
+  });
+
+  // CREATE NEW CART
+
+  if (!cart) {
+
+    cart = new cartModel({
+
+      userId,
+
+      items: []
+
+    });
+  }
+
+  // ADD ITEM
+
+  cart.items.push(item);
+
+  return await cart.save();
 };
 
-// delete single product fromcart
-module.exports.RemoveSingleProduct = async ({ userId, productId }) => {
-    // find login user cart
-    let cart = await cartModel.findOne({ userId });
 
-    if (!cart) throw new Error("Cart Not Found !!");
+// =========================
+// GET CART
+// =========================
 
-    // find index number of product based on productId
-    const itemIndex = cart.items.findIndex(
-        (i) => i.productId.equals(productId),
-        // i --> that give items array
-    );
-    console.log(itemIndex);
+module.exports.GetCart = async (
+  userId
+) => {
 
-    if (itemIndex === 0) {
-        throw new Error("Item Not Found");
+  return await cartModel
+    .findOne({ userId })
+    .populate("items.productId");
+};
+
+
+// =========================
+// REMOVE SINGLE PRODUCT
+// =========================
+
+module.exports.RemoveSingleProduct =
+  async ({
+
+    userId,
+
+    productId
+
+  }) => {
+
+    // FIND USER CART
+
+    let cart =
+      await cartModel.findOne({
+        userId
+      });
+
+    if (!cart) {
+
+      throw new Error(
+        "Cart Not Found !!"
+      );
     }
 
-    cart.items.splice(itemIndex, 1);
+    // FIND ITEM INDEX
+
+    const itemIndex =
+      cart.items.findIndex(
+
+        (i) =>
+
+          i.productId.equals(
+            productId
+          )
+
+      );
+
+    console.log(itemIndex);
+
+    // CHECK ITEM
+
+    if (itemIndex === -1) {
+
+      throw new Error(
+        "Item Not Found"
+      );
+    }
+
+    // REMOVE ITEM
+
+    cart.items.splice(
+      itemIndex,
+      1
+    );
 
     await cart.save();
+
+    return cart;
 };

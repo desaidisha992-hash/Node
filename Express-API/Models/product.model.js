@@ -1,57 +1,60 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-let productSchema = mongoose.Schema({
-    name: {
-        type: String,
-        minLength: 3,
-        required: true,
-    },
-    description: {
-        type: String,
-        minLength: 10,
-        required: true,
-    },
-    stock: {
-        type: Number,
-        minLength: 0,
-        required: true,
-        default: 0
-    },
-    price: {
-        type: Number,
-        minLength: 0,
-        required: true,
-        default: 0
-    },
-    discount: {
-        type: Number,
-        minLength: 0,
-        required: true,
-    },
-    isNewproduct: {
-        type: Boolean,
-        default: true,
-    },
-    sku: {
-        type: String,
-        unique: true,
-        required: true
-    },
-    images: [{
-        type: String,
-        required: true
-    }],
-    brand: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-        minLength: 3
-    },
-},
-    { timestamps: true },
+const productSchema = new mongoose.Schema({
+
+  // PRODUCT NAME
+  name: {
+    type: String,
+    required: true,
+  },
+
+  // DESCRIPTION
+  description: {
+    type: String,
+    required: true,
+  },
+
+  // CATEGORY
+  category: {
+    type: String,
+    required: true,
+  },
+
+  // BRAND
+  brand: {
+    type: String,
+    required: true,
+  },
+
+  // PRICE
+  price: {
+    type: Number,
+    required: true,
+  },
+
+  // STOCK
+  stock: {
+    type: Number,
+    required: true,
+  },
+
+  // IMAGES
+  images: {
+    type: [String],
+    default: [],
+  },
+
+  // SKU
+  // unique remove karyu che
+  sku: {
+    type: String,
+  },
+
+}, {
+  timestamps: true,
+});
+
+module.exports = mongoose.model(
+  "Product",
+  productSchema
 );
-
-module.exports = mongoose.model("/product", productSchema)

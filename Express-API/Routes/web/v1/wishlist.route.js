@@ -1,13 +1,23 @@
-const express = require ("express");
+const express = require("express");
+
 const router = express.Router();
-const userMiddleware = require("../../../Middlewares/user.middleware");
-const wishlistController = require("../../../Controllers/wishlist.controller")
 
-// Add Into Wishlist
-router.post ("/add", userMiddleware.authUser, wishlistController.AddToWishlist);
+const wishlistController =
+  require("../../../Controllers/wishlist.controller");
 
-// Remove Item Form Wishlist
+router.post(
+  "/add",
+  wishlistController.AddToWishlist
+);
 
+router.get(
+  "/all",
+  wishlistController.getWishlist
+);
 
+router.post(
+  "/remove",
+  wishlistController.removeFromWishlist
+);
 
 module.exports = router;
